@@ -9,6 +9,10 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const CitiesController = () => import('#controllers/cities_controller')
+import Roles from '#enums/roles'
+const CoworksController = () => import('#controllers/coworks_controller')
+const TagsController = () => import('#controllers/tags_controller')
 const AuthController = () => import('#controllers/auth_controller')
 
 router
@@ -20,3 +24,27 @@ router
   })
   .prefix('/auth')
   .as('auth')
+
+router
+  .resource('cities', CitiesController)
+  .apiOnly()
+  .use(
+    ['store', 'update', 'destroy'],
+    middleware.authorized({ roles: [Roles.ADMIN, Roles.MODERATOR] })
+  )
+
+router
+  .resource('coworks', CoworksController)
+  .apiOnly()
+  .use(
+    ['store', 'update', 'destroy'],
+    middleware.authorized({ roles: [Roles.ADMIN, Roles.MODERATOR] })
+  )
+
+router
+  .resource('tags', TagsController)
+  .apiOnly()
+  .use(
+    ['store', 'update', 'destroy'],
+    middleware.authorized({ roles: [Roles.ADMIN, Roles.MODERATOR] })
+  )
