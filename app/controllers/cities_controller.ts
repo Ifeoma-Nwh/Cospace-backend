@@ -7,7 +7,7 @@ export default class CitiesController {
    * Display a list of resource
    */
   async index({}: HttpContext) {
-    const cities = await City.all()
+    const cities = await City.query().preload('coworksByCity').orderBy('name')
 
     return cities
   }
@@ -15,9 +15,9 @@ export default class CitiesController {
   /**
    * Handle form submission for the create action
    */
-  async store({ request }: HttpContext) {
+  async store({ request, auth }: HttpContext) {
     const data = await request.validateUsing(cityValidator)
-    const city = await City.create(data)
+    const city = await City.create({ createdBy: auth.user!.id, ...data })
 
     return city
   }
@@ -27,7 +27,7 @@ export default class CitiesController {
    */
   async show({ params }: HttpContext) {
     const city = await City.findByOrFail('id', params.id)
-    await city.load('coworksByTown')
+    await city.load('coworksByCity')
 
     return city
   }
@@ -35,11 +35,10 @@ export default class CitiesController {
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request }: HttpContext) {
+  async update({ params, request, auth }: HttpContext) {
     const data = await request.validateUsing(cityValidator)
     const city = await City.findByOrFail('id', params.id)
-    city.merge(data)
-    await city.save()
+    city.merge({ updatedBy: auth.user!.id, ...data }).save()
 
     return city
   }
@@ -51,6 +50,6 @@ export default class CitiesController {
     const city = await City.findByOrFail('id', params.id)
     await city.delete()
 
-    return { message: 'City deleted' }
+    return { success: true }
   }
 }

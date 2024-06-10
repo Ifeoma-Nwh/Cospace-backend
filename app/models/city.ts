@@ -35,5 +35,5 @@ export default class City extends BaseModel {
   declare updatedByUser: BelongsTo<typeof User>
 
   @hasMany(() => Cowork)
-  declare coworksByTown: HasMany<typeof Cowork>
+  declare coworksByCity: HasMany<typeof Cowork>
 }
