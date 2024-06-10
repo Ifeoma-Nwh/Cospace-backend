@@ -1,14 +1,15 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
 import City from './city.js'
+import Tag from './tag.js'
 
 export default class Cowork extends BaseModel {
   declare id: number
 
   @column()
-  declare townId: number
+  declare cityId: number
 
   @column()
   declare name: string
@@ -57,4 +58,7 @@ export default class Cowork extends BaseModel {
 
   @belongsTo(() => User, { foreignKey: 'updatedBy' })
   declare updatedByUser: BelongsTo<typeof User>
+
+  @manyToMany(() => Tag, { pivotTable: 'coworks_tags', pivotTimestamps: true })
+  declare coworkTags: ManyToMany<typeof Tag>
 }
