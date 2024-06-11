@@ -6,6 +6,7 @@ export default class AuthController {
   async register({ request }: HttpContext) {
     const data = await request.validateUsing(registerValidator)
     const user = await User.create(data)
+    user.related('profile').create({})
 
     return User.accessTokens.create(user)
   }

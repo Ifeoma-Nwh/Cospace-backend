@@ -12,7 +12,7 @@ export default class extends BaseSchema {
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
 
-      table.unique(['cowork_poi_id', 'tag_id'])
+      table.unique(['cowork_id', 'tag_id'])
     })
   }
 

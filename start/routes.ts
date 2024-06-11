@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 const CitiesController = () => import('#controllers/cities_controller')
 import Roles from '#enums/roles'
+const UsersController = () => import('#controllers/users_controller')
 const CoworksController = () => import('#controllers/coworks_controller')
 const TagsController = () => import('#controllers/tags_controller')
 const AuthController = () => import('#controllers/auth_controller')
@@ -48,3 +49,11 @@ router
     ['store', 'update', 'destroy'],
     middleware.authorized({ roles: [Roles.ADMIN, Roles.MODERATOR] })
   )
+
+router
+  .group(() => {
+    router.get('/users', [UsersController, 'index']).as('index')
+    router.get('/users/:id', [UsersController, 'show']).as('show')
+  })
+  .as('users')
+  .use(middleware.authorized({ roles: [Roles.ADMIN] }))
