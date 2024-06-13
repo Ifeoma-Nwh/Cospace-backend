@@ -1,4 +1,5 @@
 import User from '#models/user'
+import { roleValidator } from '#validators/role'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class UsersController {
@@ -22,7 +23,7 @@ export default class UsersController {
 
   async updateRole({ params, request }: HttpContext) {
     const user = await User.findOrFail(params.id)
-    const role = request.input('role')
+    const role = request.validateUsing(roleValidator)
     user.merge({ roleId: role }).save()
 
     return user
