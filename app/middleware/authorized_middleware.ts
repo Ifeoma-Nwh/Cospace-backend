@@ -7,7 +7,7 @@ export default class AuthorizedMiddleware {
     /**
      * Middleware logic goes here (before the next call)
      */
-
+    ctx.auth.check()
     const user = ctx.auth.getUserOrFail()
 
     console.log('user', user)

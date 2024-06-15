@@ -1,15 +1,20 @@
 import User from '#models/user'
+import UserPolicy from '#policies/user_policy'
 import { roleValidator } from '#validators/role'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class UsersController {
-  async index({}: HttpContext) {
+  async index({ bouncer }: HttpContext) {
+    await bouncer.with(UserPolicy).authorize('index')
+
     const users = await User.all()
 
     return users
   }
 
-  async show({ params }: HttpContext) {
+  async show({ params, bouncer }: HttpContext) {
+    await bouncer.with(UserPolicy).authorize('show')
+
     const user = await User.findOrFail(params.id)
     user.load('createdCities')
     user.load('updatedCities')
@@ -21,7 +26,9 @@ export default class UsersController {
     return user
   }
 
-  async updateRole({ params, request }: HttpContext) {
+  async updateRole({ params, request, bouncer }: HttpContext) {
+    await bouncer.with(UserPolicy).authorize('updateRole')
+
     const user = await User.findOrFail(params.id)
     const role = request.validateUsing(roleValidator)
     user.merge({ roleId: role }).save()

@@ -10,7 +10,6 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 const CitiesController = () => import('#controllers/cities_controller')
-import Roles from '#enums/roles'
 const RolesController = () => import('#controllers/roles_controller')
 const UsersController = () => import('#controllers/users_controller')
 const CoworksController = () => import('#controllers/coworks_controller')
@@ -29,29 +28,11 @@ router
       .prefix('/auth')
       .as('auth')
 
-    router
-      .resource('cities', CitiesController)
-      .apiOnly()
-      .use(
-        ['store', 'update', 'destroy'],
-        middleware.authorized({ roles: [Roles.ADMIN, Roles.MODERATOR] })
-      )
+    router.resource('cities', CitiesController).apiOnly()
 
-    router
-      .resource('coworks', CoworksController)
-      .apiOnly()
-      .use(
-        ['store', 'update', 'destroy'],
-        middleware.authorized({ roles: [Roles.ADMIN, Roles.MODERATOR] })
-      )
+    router.resource('coworks', CoworksController).apiOnly()
 
-    router
-      .resource('tags', TagsController)
-      .apiOnly()
-      .use(
-        ['store', 'update', 'destroy'],
-        middleware.authorized({ roles: [Roles.ADMIN, Roles.MODERATOR] })
-      )
+    router.resource('tags', TagsController).apiOnly()
 
     router
       .group(() => {
@@ -59,14 +40,10 @@ router
         router.get('/users/:id', [UsersController, 'show']).as('show')
       })
       .as('users')
-      .use(middleware.authorized({ roles: [Roles.ADMIN] }))
 
     router
       .group(() => {
-        router
-          .get('/roles', [RolesController, 'index'])
-          .as('index')
-          .use(middleware.authorized({ roles: [Roles.ADMIN] }))
+        router.get('/roles', [RolesController, 'index']).as('index')
       })
       .as('roles')
   })
