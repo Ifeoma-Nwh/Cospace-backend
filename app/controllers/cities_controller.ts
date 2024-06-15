@@ -1,4 +1,5 @@
 import City from '#models/city'
+import CityPolicy from '#policies/city_policy'
 import { cityValidator } from '#validators/city'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -15,7 +16,8 @@ export default class CitiesController {
   /**
    * Handle form submission for the create action
    */
-  async store({ request, auth }: HttpContext) {
+  async store({ request, auth, bouncer }: HttpContext) {
+    await bouncer.with(CityPolicy).authorize('store')
     const data = await request.validateUsing(cityValidator)
     const city = await City.create({ createdBy: auth.user!.id, ...data })
 
@@ -35,7 +37,8 @@ export default class CitiesController {
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request, auth }: HttpContext) {
+  async update({ params, request, auth, bouncer }: HttpContext) {
+    await bouncer.with(CityPolicy).authorize('update')
     const data = await request.validateUsing(cityValidator)
     const city = await City.findByOrFail('id', params.id)
     city.merge({ updatedBy: auth.user!.id, ...data }).save()
@@ -46,7 +49,8 @@ export default class CitiesController {
   /**
    * Delete record
    */
-  async destroy({ params }: HttpContext) {
+  async destroy({ params, bouncer }: HttpContext) {
+    await bouncer.with(CityPolicy).authorize('update')
     const city = await City.findByOrFail('id', params.id)
     await city.delete()
 

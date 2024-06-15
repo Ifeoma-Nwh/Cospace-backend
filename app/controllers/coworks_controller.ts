@@ -6,6 +6,7 @@ import City from '#models/city'
 import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
 import { unlink } from 'node:fs/promises'
+import CoworkPolicy from '#policies/cowork_policy'
 
 export default class CoworksController {
   /**
@@ -23,7 +24,9 @@ export default class CoworksController {
   /**
    * Handle form submission for the create action
    */
-  async store({ request, auth }: HttpContext) {
+  async store({ request, auth, bouncer }: HttpContext) {
+    await bouncer.with(CoworkPolicy).authorize('store')
+
     const { thumbnail, thumbnailUrl, ...data } = await request.validateUsing(coworkValidator)
     const city = await City.findOrFail(data.cityId)
     const tags = await Tag.findMany(data.tags)
@@ -71,7 +74,9 @@ export default class CoworksController {
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request, auth }: HttpContext) {
+  async update({ params, request, auth, bouncer }: HttpContext) {
+    await bouncer.with(CoworkPolicy).authorize('store')
+
     const { thumbnail, thumbnailUrl, ...data } = await request.validateUsing(coworkValidator)
 
     const cowork = await Cowork.findByOrFail('id', params.id)
@@ -109,7 +114,9 @@ export default class CoworksController {
   /**
    * Delete record
    */
-  async destroy({ params }: HttpContext) {
+  async destroy({ params, bouncer }: HttpContext) {
+    await bouncer.with(CoworkPolicy).authorize('destroy')
+
     const cowork = await Cowork.findByOrFail('id', params.id)
     await cowork.delete()
 
