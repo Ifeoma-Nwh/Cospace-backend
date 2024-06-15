@@ -1,4 +1,5 @@
 import Tag from '#models/tag'
+import TagPolicy from '#policies/tag_policy'
 import { tagValidator } from '#validators/tag'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -15,7 +16,9 @@ export default class TagsController {
   /**
    * Handle form submission for the create action
    */
-  async store({ request, auth }: HttpContext) {
+  async store({ request, auth, bouncer }: HttpContext) {
+    await bouncer.with(TagPolicy).authorize('store')
+
     const data = await request.validateUsing(tagValidator)
     const tag = await Tag.create({ createdBy: auth.user!.id, ...data })
 
@@ -34,7 +37,9 @@ export default class TagsController {
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request, auth }: HttpContext) {
+  async update({ params, request, auth, bouncer }: HttpContext) {
+    await bouncer.with(TagPolicy).authorize('store')
+
     const tag = await Tag.findByOrFail('id', params.id)
 
     const data = await request.validateUsing(tagValidator)
@@ -47,7 +52,9 @@ export default class TagsController {
   /**
    * Delete record
    */
-  async destroy({ params }: HttpContext) {
+  async destroy({ params, bouncer }: HttpContext) {
+    await bouncer.with(TagPolicy).authorize('store')
+
     const tag = await Tag.findByOrFail('id', params.id)
 
     await tag.delete()
