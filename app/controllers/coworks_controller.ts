@@ -1,5 +1,5 @@
 import Cowork from '#models/cowork'
-import { coworkValidator } from '#validators/cowork'
+import { createCoworkValidator, updateCoworkValidator } from '#validators/cowork'
 import type { HttpContext } from '@adonisjs/core/http'
 import Tag from '#models/tag'
 import City from '#models/city'
@@ -27,9 +27,10 @@ export default class CoworksController {
   async store({ request, auth, bouncer }: HttpContext) {
     await bouncer.with(CoworkPolicy).authorize('store')
 
-    const { thumbnail, thumbnailUrl, ...data } = await request.validateUsing(coworkValidator)
+    const { thumbnail, thumbnailUrl, tags, ...data } =
+      await request.validateUsing(createCoworkValidator)
     const city = await City.findOrFail(data.cityId)
-    const tags = await Tag.findMany(data.tags)
+    const relatedTags = await Tag.findMany(tags)
 
     const cowork = await Cowork.create({
       ...data,
@@ -37,7 +38,7 @@ export default class CoworksController {
       createdBy: auth.user!.id,
     })
 
-    await cowork.related('coworkTags').attach(tags.map((tag) => tag.id))
+    await cowork.related('coworkTags').attach(relatedTags.map((tag) => tag.id))
 
     const trx = await db.transaction()
 
@@ -76,12 +77,15 @@ export default class CoworksController {
    */
   async update({ params, request, auth, bouncer }: HttpContext) {
     await bouncer.with(CoworkPolicy).authorize('store')
-
-    const { thumbnail, thumbnailUrl, ...data } = await request.validateUsing(coworkValidator)
+    let city
+    let relatedTags
+    const { thumbnail, thumbnailUrl, tags, ...data } =
+      await request.validateUsing(updateCoworkValidator)
 
     const cowork = await Cowork.findByOrFail('id', params.id)
-    const city = await City.findOrFail(data.cityId)
-    const tags = await Tag.findMany(data.tags)
+    if (tags) {
+      relatedTags = await Tag.findMany(tags)
+    }
 
     const trx = await db.transaction()
 
@@ -96,8 +100,14 @@ export default class CoworksController {
         cowork.thumbnailUrl = null
       }
 
-      await cowork.merge({ ...data, cityId: city.id, updatedBy: auth.user!.id }).save()
-      await cowork.related('coworkTags').attach(tags.map((tag) => tag.id))
+      await cowork.merge({ ...data, updatedBy: auth.user!.id }).save()
+      if (data.cityId) {
+        city = await City.findOrFail(data.cityId)
+        await cowork.merge({ cityId: city.id }).save()
+      }
+      if (relatedTags) {
+        await cowork.related('coworkTags').sync(relatedTags.map((tag) => tag.id))
+      }
 
       await trx.commit()
     } catch (error) {
@@ -105,8 +115,8 @@ export default class CoworksController {
       throw error
     }
 
-    cowork.load('coworkCity')
-    cowork.load('coworkTags')
+    await cowork.load('coworkCity')
+    await cowork.load('coworkTags')
 
     return cowork
   }
@@ -118,6 +128,7 @@ export default class CoworksController {
     await bouncer.with(CoworkPolicy).authorize('destroy')
 
     const cowork = await Cowork.findByOrFail('id', params.id)
+    await cowork.related('coworkTags').detach()
     await cowork.delete()
 
     return { success: true }

@@ -28,11 +28,20 @@ router
       .prefix('/auth')
       .as('auth')
 
-    router.resource('cities', CitiesController).apiOnly()
+    router
+      .resource('cities', CitiesController)
+      .apiOnly()
+      .use(['store', 'update', 'destroy'], middleware.auth())
 
-    router.resource('coworks', CoworksController).apiOnly()
+    router
+      .resource('coworks', CoworksController)
+      .apiOnly()
+      .use(['store', 'update', 'destroy'], middleware.auth())
 
-    router.resource('tags', TagsController).apiOnly()
+    router
+      .resource('tags', TagsController)
+      .apiOnly()
+      .use(['store', 'update', 'destroy'], middleware.auth())
 
     router
       .group(() => {
@@ -40,12 +49,14 @@ router
         router.get('/users/:id', [UsersController, 'show']).as('show')
       })
       .as('users')
+      .use(middleware.auth())
 
     router
       .group(() => {
         router.get('/roles', [RolesController, 'index']).as('index')
       })
       .as('roles')
+      .use(middleware.auth())
   })
   .prefix('/api')
   .as('api')

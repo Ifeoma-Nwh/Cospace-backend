@@ -1,6 +1,6 @@
 import City from '#models/city'
 import CityPolicy from '#policies/city_policy'
-import { cityValidator } from '#validators/city'
+import { createCityValidator, updateCityValidator } from '#validators/city'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class CitiesController {
@@ -18,7 +18,7 @@ export default class CitiesController {
    */
   async store({ request, auth, bouncer }: HttpContext) {
     await bouncer.with(CityPolicy).authorize('store')
-    const data = await request.validateUsing(cityValidator)
+    const data = await request.validateUsing(createCityValidator)
     const city = await City.create({ createdBy: auth.user!.id, ...data })
 
     return city
@@ -39,10 +39,13 @@ export default class CitiesController {
    */
   async update({ params, request, auth, bouncer }: HttpContext) {
     await bouncer.with(CityPolicy).authorize('update')
-    const data = await request.validateUsing(cityValidator)
+    const data = await request.validateUsing(updateCityValidator)
     const city = await City.findByOrFail('id', params.id)
     city.merge({ updatedBy: auth.user!.id, ...data }).save()
 
+    await city.load('coworksByCity')
+    await city.load('createdByUser')
+    await city.load('updatedByUser')
     return city
   }
 

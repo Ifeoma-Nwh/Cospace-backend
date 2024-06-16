@@ -13,7 +13,7 @@ export default class extends BaseSchema {
       table.string('address').notNullable()
       table.string('description').nullable()
       table.string('timetable').notNullable()
-      table.integer('phone_number').notNullable()
+      table.string('phone_number').notNullable()
       table.float('daily_price').notNullable()
       table.float('monthly_price').notNullable()
       table.string('thumbnail_url').nullable()

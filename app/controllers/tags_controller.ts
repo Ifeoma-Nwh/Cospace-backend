@@ -57,6 +57,7 @@ export default class TagsController {
 
     const tag = await Tag.findByOrFail('id', params.id)
 
+    await tag.related('taggedCoworks').detach()
     await tag.delete()
 
     return { success: true }

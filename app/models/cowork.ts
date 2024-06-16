@@ -6,6 +6,7 @@ import City from './city.js'
 import Tag from './tag.js'
 
 export default class Cowork extends BaseModel {
+  @column({ isPrimary: true })
   declare id: number
 
   @column()
@@ -24,7 +25,7 @@ export default class Cowork extends BaseModel {
   declare timetable: string
 
   @column()
-  declare phoneNumber: number
+  declare phoneNumber: string
 
   @column()
   declare dailyPrice: number
