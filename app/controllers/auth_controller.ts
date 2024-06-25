@@ -29,7 +29,6 @@ export default class AuthController {
   async me({ auth }: HttpContext) {
     await auth.check()
     const user = auth.user!
-    await user.load('profile')
     return user
   }
 }
