@@ -28,7 +28,6 @@ export default class AuthController {
 
   async me({ auth }: HttpContext) {
     await auth.check()
-    const user = auth.user!
-    return user
+    return { authUser: auth.user }
   }
 }
