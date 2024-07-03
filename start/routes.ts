@@ -9,6 +9,8 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const AvatarsController = () => import('#controllers/avatars_controller')
+const ProfilesController = () => import('#controllers/profiles_controller')
 const CitiesController = () => import('#controllers/cities_controller')
 const RolesController = () => import('#controllers/roles_controller')
 const UsersController = () => import('#controllers/users_controller')
@@ -42,6 +44,16 @@ router
       .resource('tags', TagsController)
       .apiOnly()
       .use(['store', 'update', 'destroy'], middleware.auth())
+
+    router
+      .group(() => {
+        router.get('/profile/:id', [ProfilesController, 'show']).as('show')
+        router.put('/profiles', [ProfilesController, 'update']).as('update')
+      })
+      .as('profiles')
+      .use(middleware.auth())
+
+    router.get('/avatars/:filename', [AvatarsController, 'show']).as('avatars.show')
 
     router
       .group(() => {
