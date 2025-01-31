@@ -30,6 +30,7 @@ export default class TagsController {
    */
   async show({ params }: HttpContext) {
     const tag = await Tag.findOrFail(params.id)
+    await tag.load('taggedCoworks')
 
     return tag
   }
