@@ -30,8 +30,8 @@ export default class UsersController {
     await bouncer.with(UserPolicy).authorize('updateRole')
 
     const user = await User.findOrFail(params.id)
-    const role = request.validateUsing(roleValidator)
-    user.merge({ roleId: role }).save()
+    const { role } = await request.validateUsing(roleValidator)
+    await user.merge({ roleId: role }).save()
 
     return user
   }

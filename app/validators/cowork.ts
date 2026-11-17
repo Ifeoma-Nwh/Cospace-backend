@@ -28,7 +28,7 @@ export const updateCoworkValidator = vine.compile(
     tags: vine.array(vine.number()).optional(),
     name: vine.string().optional(),
     address: vine.string().optional(),
-    description: vine.string().optional().optional(),
+    description: vine.string().optional(),
     timetable: vine.string().optional(),
     phoneNumber: vine
       .string()

@@ -1,4 +1,6 @@
 import { defineConfig } from '@adonisjs/core/app'
+import { indexEntities } from '@adonisjs/core'
+import { indexPolicies } from '@adonisjs/bouncer'
 
 export default defineConfig({
   /*
@@ -47,6 +49,19 @@ export default defineConfig({
 
   /*
   |--------------------------------------------------------------------------
+  | Assembler hooks
+  |--------------------------------------------------------------------------
+  |
+  | Hooks are executed during development and build processes to generate
+  | files and perform other tasks.
+  |
+  */
+  hooks: {
+    init: [indexEntities(), indexPolicies()],
+  },
+
+  /*
+  |--------------------------------------------------------------------------
   | Tests
   |--------------------------------------------------------------------------
   |
@@ -57,12 +72,12 @@ export default defineConfig({
   tests: {
     suites: [
       {
-        files: ['tests/unit/**/*.spec(.ts|.js)'],
+        files: ['tests/unit/**/*.spec.{ts,js}'],
         name: 'unit',
         timeout: 2000,
       },
       {
-        files: ['tests/functional/**/*.spec(.ts|.js)'],
+        files: ['tests/functional/**/*.spec.{ts,js}'],
         name: 'functional',
         timeout: 30000,
       },
